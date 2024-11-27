@@ -1,0 +1,11 @@
+{
+  "name": "s3-upload",
+  "version": "1.0.0",
+  "description": "S3 file upload tool",
+  "scripts": {
+    "start": "npx http-server . -p 3001 --cors"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1"
+  }
+}

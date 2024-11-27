@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S3 File Upload</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 使用最新版本的AWS SDK -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1499.0.min.js"></script>
+    <!-- 添加CORS支持 -->
+    <script>
+        // 配置AWS SDK
+        AWS.config.httpOptions = {
+            cors: true,
+            withCredentials: false,
+            timeout: 0,
+            connectTimeout: 5000,
+            retryDelayOptions: {base: 300}
+        };
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>S3 配置</h2>
+        <div class="config-form">
+            <div class="form-group">
+                <label for="accessKeyId">Access Key ID:</label>
+                <input type="text" id="accessKeyId" placeholder="输入 Access Key ID">
+            </div>
+            <div class="form-group">
+                <label for="secretAccessKey">Secret Access Key:</label>
+                <input type="password" id="secretAccessKey" placeholder="输入 Secret Access Key">
+            </div>
+            <div class="form-group">
+                <label for="region">Region:</label>
+                <input type="text" id="region" placeholder="例如: us-east-1" value="us-east-1">
+            </div>
+            <div class="form-group">
+                <label for="bucketName">Bucket 名称:</label>
+                <input type="text" id="bucketName" placeholder="输入 S3 Bucket 名称">
+            </div>
+            <button id="saveConfig" class="save-button">保存配置</button>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="container">
+            <h1>S3 文件上传</h1>
+            <div class="upload-container">
+                <div class="path-config">
+                    <label for="uploadPath" class="path-label">上传路径:</label>
+                    <input type="text" id="uploadPath" class="path-input" placeholder="例如: images/" value="uploads/">
+                    <div class="path-hint">路径将作为文件在S3中的前缀，例如: images/filename.jpg</div>
+                </div>
+                <div class="file-input-container">
+                    <input type="file" id="fileInput" class="file-input" multiple>
+                    <label for="fileInput" class="file-label">选择文件</label>
+                </div>
+                <div id="fileList" class="file-list"></div>
+                <button id="uploadButton" class="upload-button">上传到 S3</button>
+                <div id="message" class="message"></div>
+                <div id="networkStatus" class="network-status"></div>
+            </div>
+        </div>
+    </div>
+    <!-- 添加调试信息区域 -->
+    <div id="debug" style="position: fixed; bottom: 0; left: 0; right: 0; background: #f5f5f5; padding: 10px; max-height: 200px; overflow-y: auto;">
+        <pre id="debugInfo" style="margin: 0; white-space: pre-wrap;"></pre>
+    </div>
+    <script>
+        // 显示调试信息
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const debugInfo = document.getElementById('debugInfo');
+        const debugPanel = document.getElementById('debug');
+        
+        console.log = function() {
+            debugPanel.style.display = 'block';
+            const args = Array.from(arguments);
+            const timestamp = new Date().toISOString();
+            debugInfo.textContent = `[${timestamp}] ` + args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg
+            ).join(' ') + '\n' + debugInfo.textContent;
+            originalConsoleLog.apply(console, arguments);
+        };
+        
+        console.error = function() {
+            debugPanel.style.display = 'block';
+            const args = Array.from(arguments);
+            const timestamp = new Date().toISOString();
+            debugInfo.textContent = `[${timestamp}] 错误: ` + args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg
+            ).join(' ') + '\n' + debugInfo.textContent;
+            originalConsoleError.apply(console, arguments);
+        };
+
+        // 添加网络状态监控
+        function updateNetworkStatus() {
+            const status = navigator.onLine ? '在线' : '离线';
+            const networkStatus = document.getElementById('networkStatus');
+            networkStatus.textContent = `网络状态: ${status}`;
+            networkStatus.className = `network-status ${status === '在线' ? 'online' : 'offline'}`;
+        }
+
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+        updateNetworkStatus();
+    </script>
+    <script src="main.js"></script>
+</body>
+</html>
