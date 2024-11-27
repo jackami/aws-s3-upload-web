@@ -24,7 +24,7 @@
 
 ```bash
 git clone <repository-url>
-cd s3-upload
+cd aws-s3-upload-web
 ```
 
 2. 安装依赖：
@@ -167,7 +167,7 @@ npm start
 ### 项目结构
 
 ```
-s3-upload/
+aws-s3-upload-web/
 ├── index.html      # 主页面
 ├── style.css       # 样式文件
 ├── main.js         # 主要逻辑
